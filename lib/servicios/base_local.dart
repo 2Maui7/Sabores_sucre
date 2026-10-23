@@ -5,7 +5,8 @@
 // app funciona aunque no haya internet.
 //
 // Tiene 4 tablas:
-//   establecimientos  (id, nombre, tipo, descripcion, direccion, horario, precio)
+//   establecimientos  (id, nombre, tipo, descripcion, direccion, horario,
+//                      precio, latitud, longitud)
 //   platos            (establecimiento_id, nombre, precio, comida, dieta)
 //   fotos             (establecimiento_id, imagen)
 //   catalogos         (grupo, nombre)   grupo = tipo | comida | dieta
@@ -28,7 +29,19 @@ class BaseLocal {
     final archivo = ruta ?? join(await getDatabasesPath(), 'sabores.db');
     _db = await fabrica.openDatabase(
       archivo,
-      options: OpenDatabaseOptions(version: 1, onCreate: _crearTablas),
+      options: OpenDatabaseOptions(
+        version: 2,
+        onCreate: _crearTablas,
+        // Versión 2 agregó latitud y longitud. Como SQLite es solo una copia,
+        // basta con borrar las tablas y crearlas de nuevo: la siguiente
+        // sincronización las vuelve a llenar.
+        onUpgrade: (db, anterior, nueva) async {
+          for (final t in ['establecimientos', 'platos', 'fotos', 'catalogos']) {
+            await db.execute('DROP TABLE IF EXISTS $t');
+          }
+          await _crearTablas(db, nueva);
+        },
+      ),
     );
     return _db!;
   }
@@ -38,7 +51,8 @@ class BaseLocal {
       CREATE TABLE establecimientos (
         id TEXT PRIMARY KEY,
         nombre TEXT, tipo TEXT, descripcion TEXT,
-        direccion TEXT, horario TEXT, precio INTEGER
+        direccion TEXT, horario TEXT, precio INTEGER,
+        latitud REAL, longitud REAL
       )''');
     await db.execute('''
       CREATE TABLE platos (
@@ -77,6 +91,8 @@ class BaseLocal {
           'direccion': e.direccion,
           'horario': e.horario,
           'precio': e.precio,
+          'latitud': e.latitud,
+          'longitud': e.longitud,
         });
         for (final p in e.platos) {
           await t.insert('platos', {'establecimiento_id': e.id, ...p.aMapa()});

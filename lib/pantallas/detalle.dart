@@ -4,10 +4,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../modelos.dart';
 import '../servicios/base_local.dart';
+import 'mapa.dart';
 
 class DetallePantalla extends StatefulWidget {
   const DetallePantalla({super.key, required this.id});
@@ -26,13 +28,20 @@ class _DetallePantallaState extends State<DetallePantalla> {
     BaseLocal.detalle(widget.id).then((e) => setState(() => _local = e));
   }
 
-  /// Abre Google Maps buscando el nombre y la dirección del local.
+  /// Abre Google Maps con la ruta hasta el local.
+  /// Si el local tiene coordenadas, la ruta va al punto exacto (desde donde
+  /// está el visitante); si no, se busca por la dirección escrita.
   void _comoLlegar() {
     final e = _local!;
-    final url = Uri.https('www.google.com', '/maps/search/', {
-      'api': '1',
-      'query': '${e.nombre}, ${e.direccion}, Sucre, Bolivia',
-    });
+    final url = e.tieneUbicacion
+        ? Uri.https('www.google.com', '/maps/dir/', {
+            'api': '1',
+            'destination': '${e.latitud},${e.longitud}',
+          })
+        : Uri.https('www.google.com', '/maps/search/', {
+            'api': '1',
+            'query': '${e.nombre}, ${e.direccion}, Sucre, Bolivia',
+          });
     launchUrl(url, mode: LaunchMode.externalApplication);
   }
 
@@ -85,6 +94,13 @@ class _DetallePantallaState extends State<DetallePantalla> {
                 const SizedBox(height: 12),
                 _dato(Icons.place, e.direccion),
                 _dato(Icons.schedule, e.horario),
+                if (e.tieneUbicacion) ...[
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: MapaConMarcador(punto: LatLng(e.latitud!, e.longitud!)),
+                  ),
+                ],
                 const SizedBox(height: 8),
                 FilledButton.icon(
                   onPressed: _comoLlegar,

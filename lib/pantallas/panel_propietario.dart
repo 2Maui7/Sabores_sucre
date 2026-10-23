@@ -5,9 +5,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../modelos.dart';
 import '../servicios/firebase_servicio.dart';
+import '../servicios/ubicacion.dart';
+import 'mapa.dart';
 
 class PanelPropietario extends StatefulWidget {
   const PanelPropietario({super.key});
@@ -45,6 +48,10 @@ class _PanelPropietarioState extends State<PanelPropietario> {
 
   Future<void> _guardar({bool reenviar = false}) async {
     if (!_form.currentState!.validate()) return;
+    if (!_local!.tieneUbicacion) {
+      _mensaje('Marca la ubicación de tu local.');
+      return;
+    }
     if (_local!.platos.isEmpty) {
       _mensaje('Agrega al menos un plato.');
       return;
@@ -74,6 +81,67 @@ class _PanelPropietarioState extends State<PanelPropietario> {
     if (foto == null) return;
     final texto = base64Encode(await foto.readAsBytes());
     setState(() => _local!.fotos.add(texto));
+  }
+
+  /// Opción 1: usar el GPS del teléfono (estando en el local).
+  Future<void> _usarMiUbicacion() async {
+    try {
+      final aqui = await ubicacionActual();
+      setState(() {
+        _local!.latitud = aqui.latitude;
+        _local!.longitud = aqui.longitude;
+      });
+    } catch (e) {
+      _mensaje(mensajeError(e));
+    }
+  }
+
+  /// Opción 2: elegir el punto tocando un mapa.
+  Future<void> _elegirEnMapa() async {
+    final e = _local!;
+    final punto = await Navigator.push<LatLng>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ElegirUbicacionPantalla(
+          inicial: e.tieneUbicacion ? LatLng(e.latitud!, e.longitud!) : null,
+        ),
+      ),
+    );
+    if (punto != null) {
+      setState(() {
+        e.latitud = punto.latitude;
+        e.longitud = punto.longitude;
+      });
+    }
+  }
+
+  /// Vista previa del mapa y los dos botones para marcar la ubicación.
+  Widget _seccionUbicacion(Establecimiento e) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (e.tieneUbicacion)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: MapaConMarcador(punto: LatLng(e.latitud!, e.longitud!)),
+          )
+        else
+          const Text('Todavía no marcaste la ubicación de tu local.'),
+        const SizedBox(height: 8),
+        Wrap(spacing: 8, children: [
+          OutlinedButton.icon(
+            onPressed: _usarMiUbicacion,
+            icon: const Icon(Icons.my_location),
+            label: const Text('Usar mi ubicación actual'),
+          ),
+          OutlinedButton.icon(
+            onPressed: _elegirEnMapa,
+            icon: const Icon(Icons.map),
+            label: const Text('Elegir en el mapa'),
+          ),
+        ]),
+      ],
+    );
   }
 
   /// Ventana para agregar o editar un plato.
@@ -224,6 +292,9 @@ class _PanelPropietarioState extends State<PanelPropietario> {
                     ],
                     onChanged: (v) => e.precio = v!,
                   ),
+                  const SizedBox(height: 16),
+                  _titulo('Ubicación en el mapa'),
+                  _seccionUbicacion(e),
                   const SizedBox(height: 16),
                   _titulo('Fotos (máximo 3)'),
                   Wrap(spacing: 8, runSpacing: 8, children: [

@@ -19,6 +19,8 @@ void main() {
     direccion: 'Calle Ravelo',
     precio: 1,
     estado: 'aprobado',
+    latitud: -19.0447,
+    longitud: -65.2598,
     fotos: ['Zm90bw=='],
     platos: [
       Plato(nombre: 'Mondongo', precio: 35, comida: 'Plato fuerte', dieta: 'Ninguna'),
@@ -44,6 +46,12 @@ void main() {
     expect(copia.platos.length, 2);
     expect(copia.platos.first.precio, 35.0);
     expect(copia.fotos.single, 'Zm90bw==');
+    expect(copia.latitud, -19.0447);
+    expect(copia.tieneUbicacion, isTrue);
+  });
+
+  test('un local sin coordenadas no tiene ubicación', () {
+    expect(Establecimiento(id: 'x').tieneUbicacion, isFalse);
   });
 
   test('aMapa no envía estado ni motivo (los decide el admin)', () {
@@ -75,10 +83,12 @@ void main() {
       expect(lista.single['id'], 'uid1');
     });
 
-    test('el detalle trae menú y fotos', () async {
+    test('el detalle trae menú, fotos y coordenadas', () async {
       final e = await BaseLocal.detalle('uid1');
       expect(e!.platos.length, 2);
       expect(e.fotos.length, 1);
+      expect(e.latitud, -19.0447);
+      expect(e.longitud, -65.2598);
     });
 
     test('una nueva copia reemplaza a la anterior (un local suspendido desaparece)',

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../modelos.dart';
 import '../servicios/firebase_servicio.dart';
+import 'panel_propietario.dart';
 
 class PanelAdmin extends StatelessWidget {
   const PanelAdmin({super.key});
@@ -21,6 +22,15 @@ class PanelAdmin extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Administración'),
           actions: [
+            // Por si el administrador también es dueño de un local.
+            IconButton(
+              icon: const Icon(Icons.storefront),
+              tooltip: 'Mi local',
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PanelPropietario()),
+              ),
+            ),
             IconButton(
               icon: const Icon(Icons.logout),
               tooltip: 'Cerrar sesión',

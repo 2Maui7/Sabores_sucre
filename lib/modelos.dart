@@ -47,6 +47,8 @@ class Establecimiento {
     this.precio = 1,
     this.estado = 'pendiente',
     this.motivo = '',
+    this.latitud,
+    this.longitud,
     List<String>? fotos,
     List<Plato>? platos,
   })  : fotos = fotos ?? [],
@@ -64,6 +66,12 @@ class Establecimiento {
   String estado;
   String motivo; // por qué se rechazó (si fue rechazado)
 
+  /// Ubicación exacta del local en el mapa (null si todavía no se marcó).
+  double? latitud;
+  double? longitud;
+
+  bool get tieneUbicacion => latitud != null && longitud != null;
+
   /// Fotos guardadas como texto (base64). Máximo 3.
   List<String> fotos;
   List<Plato> platos;
@@ -79,6 +87,8 @@ class Establecimiento {
         precio: (m['precio'] as num? ?? 1).toInt(),
         estado: m['estado'] ?? 'pendiente',
         motivo: m['motivo'] ?? '',
+        latitud: (m['latitud'] as num?)?.toDouble(),
+        longitud: (m['longitud'] as num?)?.toDouble(),
         fotos: List<String>.from(m['fotos'] ?? []),
         platos: [
           for (final p in (m['platos'] as List? ?? []))
@@ -95,6 +105,8 @@ class Establecimiento {
         'direccion': direccion,
         'horario': horario,
         'precio': precio,
+        'latitud': latitud,
+        'longitud': longitud,
         'fotos': fotos,
         'platos': [for (final p in platos) p.aMapa()],
       };

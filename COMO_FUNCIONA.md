@@ -64,6 +64,15 @@ Las fotos se achican (unos 100 KB) y se guardan **como texto** dentro del docume
 4. **Propietarios**: suspende o reactiva cuentas. Suspender una cuenta también suspende su local.
 5. **Catálogos**: agrega o quita opciones de los filtros.
 
+## Ubicación del local
+Cada local guarda su **latitud y longitud** (el punto exacto en el mapa), además de la dirección escrita.
+- **El propietario la marca** en "Mi local" → "Ubicación en el mapa", de dos maneras:
+  1. **"Usar mi ubicación actual"**: estando en su local, el GPS del teléfono la toma sola (`servicios/ubicacion.dart`).
+  2. **"Elegir en el mapa"**: toca el lugar en un mapa de OpenStreetMap, que es gratis y no necesita clave (`pantallas/mapa.dart`).
+- Las coordenadas se guardan en Firebase dentro del documento del local, y en SQLite en las columnas `latitud` y `longitud`.
+- **El visitante** ve un mapa pequeño en el detalle. **"Cómo llegar"** abre Google Maps con la ruta desde donde está hasta ese punto exacto.
+- Los mapas necesitan internet para dibujar las calles. Sin conexión, el resto del detalle se sigue viendo.
+
 ## La seguridad (`firestore.rules`)
 Las reglas se revisan **en el servidor de Firebase**, así que nadie puede saltárselas aunque modifique la app:
 - Cualquiera puede leer los locales **aprobados** y los catálogos.
@@ -79,6 +88,8 @@ Las reglas se revisan **en el servidor de Firebase**, así que nadie puede salt�
 | `lib/servicios/firebase_servicio.dart` | **Todo** lo que se hace con Firebase. |
 | `lib/servicios/base_local.dart` | **Todo** lo que se hace con SQLite. |
 | `lib/servicios/sincronizacion.dart` | La "fotocopia": de Firebase a SQLite. |
+| `lib/servicios/ubicacion.dart` | El GPS: obtener la ubicación actual. |
+| `lib/pantallas/mapa.dart` | Los mapas: el pequeño del detalle y el de elegir ubicación. |
 | `lib/pantallas/*.dart` | Las pantallas: inicio, detalle, filtros, login, registro, panel del propietario y panel del admin. |
 | `firestore.rules` | Las reglas de seguridad. |
 
