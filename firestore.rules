@@ -1,0 +1,66 @@
+rules_version = '2';
+
+// Reglas de seguridad de Firestore. Se revisan en el SERVIDOR de Firebase,
+// así que nadie puede saltárselas aunque modifique la app.
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    // Datos del usuario que hace la petición (su ficha en "usuarios").
+    function yo() {
+      return get(/databases/$(db)/documents/usuarios/$(request.auth.uid)).data;
+    }
+    function esAdmin() {
+      return request.auth != null && yo().rol == 'admin';
+    }
+    // Es el dueño de este documento y su cuenta está activa.
+    function esDuenoActivo(uid) {
+      return request.auth != null && request.auth.uid == uid && yo().activo == true;
+    }
+    // Campos que cambian en una actualización.
+    function cambia() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // ---- Cuentas -------------------------------------------------------
+    match /usuarios/{uid} {
+      // Cada uno ve su propia ficha; el admin ve todas.
+      allow read: if (request.auth != null && request.auth.uid == uid) || esAdmin();
+      // Al registrarse, solo puede crearse como propietario activo.
+      allow create: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.rol == 'propietario'
+        && request.resource.data.activo == true;
+      // Solo el admin suspende o reactiva cuentas (campo "activo").
+      allow update: if esAdmin() && cambia().hasOnly(['activo']);
+    }
+
+    // ---- Locales (el id del documento es el uid del dueño) --------------
+    match /establecimientos/{uid} {
+      // Todos ven los aprobados; el dueño ve el suyo; el admin ve todos.
+      allow read: if resource.data.estado == 'aprobado'
+        || (request.auth != null && request.auth.uid == uid)
+        || esAdmin();
+
+      // El dueño crea su local siempre como "pendiente", con máximo 3 fotos.
+      allow create: if esDuenoActivo(uid)
+        && request.resource.data.estado == 'pendiente'
+        && request.resource.data.fotos.size() <= 3;
+
+      // El dueño edita sus datos pero NO puede cambiar el estado,
+      // salvo volver a enviar un local rechazado (rechazado -> pendiente).
+      allow update: if esDuenoActivo(uid)
+        && request.resource.data.fotos.size() <= 3
+        && (!cambia().hasAny(['estado', 'motivo'])
+            || (resource.data.estado == 'rechazado'
+                && request.resource.data.estado == 'pendiente'));
+
+      // El admin solo cambia el estado y el motivo.
+      allow update: if esAdmin() && cambia().hasOnly(['estado', 'motivo']);
+    }
+
+    // ---- Catálogos (opciones de los filtros) ----------------------------
+    match /catalogos/{doc} {
+      allow read: if true;
+      allow write: if esAdmin();
+    }
+  }
+}

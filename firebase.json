@@ -1,0 +1,25 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "sabores-sucre",
+          "appId": "1:177334068957:android:fb0e9eb8dba18116229d34",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "sabores-sucre",
+          "configurations": {
+            "android": "1:177334068957:android:fb0e9eb8dba18116229d34",
+            "ios": "1:177334068957:ios:803d22525c27864d229d34"
+          }
+        }
+      }
+    }
+  }
+}

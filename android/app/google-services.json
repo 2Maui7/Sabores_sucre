@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "177334068957",
+    "project_id": "sabores-sucre",
+    "storage_bucket": "sabores-sucre.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177334068957:android:fb0e9eb8dba18116229d34",
+        "android_client_info": {
+          "package_name": "bo.edu.itsec.sabores_sucre"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzADuTm_GuSKVDN7LnvC5dkIx3KTs3Y-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
