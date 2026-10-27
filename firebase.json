@@ -2,6 +2,11 @@
   "firestore": {
     "rules": "firestore.rules"
   },
+  "hosting": {
+    "public": "build/web",
+    "ignore": ["firebase.json", "**/.*"],
+    "rewrites": [{ "source": "**", "destination": "/index.html" }]
+  },
   "flutter": {
     "platforms": {
       "android": {
@@ -16,7 +21,8 @@
           "projectId": "sabores-sucre",
           "configurations": {
             "android": "1:177334068957:android:fb0e9eb8dba18116229d34",
-            "ios": "1:177334068957:ios:803d22525c27864d229d34"
+            "ios": "1:177334068957:ios:803d22525c27864d229d34",
+            "web": "1:177334068957:web:b0c01aa10f85c2c8229d34"
           }
         }
       }

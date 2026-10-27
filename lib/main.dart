@@ -2,10 +2,12 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'firebase_options.dart';
 import 'pantallas/inicio.dart';
+import 'pantallas/portal_web.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +33,9 @@ class SaboresSucreApp extends StatelessWidget {
       title: 'Sabores de Sucre',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: const Color(0xFFB71C1C)),
-      home: const InicioPantalla(),
+      // En el navegador se abre el portal para propietarios; en el celular,
+      // la app completa (la web no tiene SQLite).
+      home: kIsWeb ? const PortalWebPantalla() : const InicioPantalla(),
     );
   }
 }

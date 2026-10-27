@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -56,7 +53,6 @@ class DefaultFirebaseOptions {
     projectId: 'sabores-sucre',
     storageBucket: 'sabores-sucre.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBrff7400VoygSQiMJASg_t_oGf9c6jc7g',
     appId: '1:177334068957:ios:803d22525c27864d229d34',
@@ -64,5 +60,13 @@ class DefaultFirebaseOptions {
     projectId: 'sabores-sucre',
     storageBucket: 'sabores-sucre.firebasestorage.app',
     iosBundleId: 'bo.edu.itsec.saboresSucre',
+  );
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDXX3V4CJuyiUgji9iV3Z6Bauh4fhFkFFM',
+    appId: '1:177334068957:web:b0c01aa10f85c2c8229d34',
+    messagingSenderId: '177334068957',
+    projectId: 'sabores-sucre',
+    authDomain: 'sabores-sucre.firebaseapp.com',
+    storageBucket: 'sabores-sucre.firebasestorage.app',
   );
 }
