@@ -369,7 +369,12 @@ class _PanelPropietarioState extends State<PanelPropietario> {
         : switch (e.estado) {
             'aprobado' => ('Tu local está aprobado y visible en la app.', Colors.green),
             'rechazado' => ('Rechazado: ${e.motivo}', Colors.red),
-            'suspendido' => ('Tu local está suspendido.', Colors.grey),
+            'suspendido' => (
+                e.motivo.isEmpty
+                    ? 'Tu local está suspendido.'
+                    : 'Tu local está suspendido: ${e.motivo}',
+                Colors.grey
+              ),
             _ => ('Pendiente: el administrador lo está revisando.', Colors.orange),
           };
     return Container(

@@ -97,12 +97,14 @@ class _ListaLocalesState extends State<_ListaLocales> {
     }
   }
 
-  Future<void> _rechazar(Establecimiento e) async {
+  /// Pide el motivo antes de rechazar o suspender un local.
+  /// El dueño ve ese motivo en su panel ("Mi local").
+  Future<void> _conMotivo(Establecimiento e, String nuevoEstado, String accion) async {
     final motivo = TextEditingController();
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Rechazar "${e.nombre}"'),
+        title: Text('$accion "${e.nombre}"'),
         content: TextField(
           controller: motivo,
           decoration: const InputDecoration(labelText: 'Motivo'),
@@ -112,12 +114,12 @@ class _ListaLocalesState extends State<_ListaLocales> {
               onPressed: () => Navigator.pop(context, false),
               child: const Text('Cancelar')),
           FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Rechazar')),
+              onPressed: () => Navigator.pop(context, motivo.text.trim().isNotEmpty),
+              child: Text(accion)),
         ],
       ),
     );
-    if (ok == true) _cambiar(e, 'rechazado', motivo: motivo.text.trim());
+    if (ok == true) _cambiar(e, nuevoEstado, motivo: motivo.text.trim());
   }
 
   @override
@@ -147,17 +149,19 @@ class _ListaLocalesState extends State<_ListaLocales> {
                           onPressed: () => _cambiar(e, 'aprobado'),
                           child: const Text('Aprobar')),
                       OutlinedButton(
-                          onPressed: () => _rechazar(e),
+                          onPressed: () => _conMotivo(e, 'rechazado', 'Rechazar'),
                           child: const Text('Rechazar')),
                     ],
                     if (widget.estado == 'aprobado')
                       OutlinedButton(
-                          onPressed: () => _cambiar(e, 'suspendido'),
+                          onPressed: () => _conMotivo(e, 'suspendido', 'Suspender'),
                           child: const Text('Suspender')),
-                    if (widget.estado == 'suspendido')
+                    if (widget.estado == 'suspendido') ...[
+                      if (e.motivo.isNotEmpty) Text('Motivo: ${e.motivo}'),
                       FilledButton(
-                          onPressed: () => _cambiar(e, 'aprobado'),
+                          onPressed: () => _cambiar(e, 'aprobado'), // borra el motivo
                           child: const Text('Reactivar')),
+                    ],
                   ]),
                 ],
               ),

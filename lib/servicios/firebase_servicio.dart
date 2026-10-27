@@ -141,7 +141,10 @@ Future<void> cambiarCuenta(String uid, bool activo) async {
   await _db.collection('usuarios').doc(uid).update({'activo': activo});
   final local = _db.collection('establecimientos').doc(uid);
   if (!activo && (await local.get()).exists) {
-    await local.update({'estado': 'suspendido'});
+    await local.update({
+      'estado': 'suspendido',
+      'motivo': 'Cuenta suspendida por el administrador.',
+    });
   }
 }
 
