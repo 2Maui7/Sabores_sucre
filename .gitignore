@@ -50,3 +50,6 @@ app.*.map.json
 # Copias de la base SQLite para DBeaver y caché de Firebase CLI
 *.db
 .firebase/
+
+# APK publicado junto al portal web (se copia antes de compilar la web)
+/web/descargas/
