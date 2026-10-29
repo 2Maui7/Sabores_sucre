@@ -30,9 +30,11 @@ class PortalWebPantalla extends StatelessWidget {
     );
   }
 
-  /// Descarga el APK publicado junto al portal (web/descargas).
+  /// Descarga el APK de la última versión publicada en GitHub Releases
+  /// (Firebase Hosting no admite ejecutables en el plan gratuito).
   void _descargarApk() {
-    launchUrl(Uri.base.resolve('descargas/sabores_sucre.apk'));
+    launchUrl(Uri.parse(
+        'https://github.com/2Maui7/sabores-sucre-descargas/releases/latest/download/sabores_sucre.apk'));
   }
 
   @override
